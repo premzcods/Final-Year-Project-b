@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billo - Indian GST Billing</title>
+    
+    <!-- CSS STYLES -->
+    <style>
+        /* =========================================================
+           CSS VARIABLES
+        ========================================================= */
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --text-color: #1f2937;
+            --light-bg: #f3f4f6;
+            --white: #ffffff;
+            --border-color: #e5e7eb;
+            --danger-color: #dc2626;
+            --nav-height: 70px;
+        }
+
+        /* =========================================================
+           GLOBAL RESET & BASE STYLES
+        ========================================================= */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            padding-top: var(--nav-height);
+        }
+
+        /* =========================================================
+           NAVIGATION BAR
+        ========================================================= */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: var(--nav-height);
+            padding: 0 5%;
+            background-color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary-color);
+            text-decoration: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Container for Nav Links */
+        .nav-container {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn {
+            position: relative;
+            padding: 5px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6b7280;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .nav-btn:hover,
+        .nav-btn.active {
+            color: var(--primary-color);
+        }
+
+        .nav-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 100%;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        .cta-btn {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.3s;
+            white-space: nowrap;
+        }
+
+        .cta-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Mobile Menu Button (Hamburger) */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* =========================================================
+           PAGE SECTIONS
+        ========================================================= */
+        .page-section {
+            display: none;
+            min-height: calc(100vh - var(--nav-height));
+            padding: 40px 5%;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page-section.active-section {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* =========================================================
+           HERO / CONTENT SECTIONS
+        ========================================================= */
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+            margin-bottom: 40px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem; /* Adjusted for mobile */
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            font-size: 1.1rem;
+            color: #6b7280;
+        }
+
+        /* =========================================================
+           BUTTONS
+        ========================================================= */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            background-color: var(--primary-color);
+            color: var(--white);
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background-color: var(--white);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--light-bg);
+        }
+
+        /* =========================================================
+           GRIDS & CARDS
+        ========================================================= */
+        .features-grid,
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card,
+        .price-card {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .price {
+            margin: 20px 0;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+        }
+
+        .price span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #666;
+        }
+
+        /* =========================================================
+           DEMO / INVOICE CONTROLS
+        ========================================================= */
+        .controls {
+            background-color: var(--white);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .invoice-paper {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background-color: var(--white);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        /* =========================================================
+           EDITABLE FIELDS
+        ========================================================= */
+        [contenteditable="true"] {
+            min-width: 20px;
+            padding: 2px;
+            border: 1px dashed transparent;
+            display: inline-block;
+            transition: border 0.2s;
+        }
+
+        [contenteditable="true"]:hover {
+            border-color: #cbd5e1;
+            background-color: #f8fafc;
+        }
+
+        [contenteditable="true"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: #eff6ff;
+        }
+
+        /* =========================================================
+           INVOICE LAYOUT
+        ========================================================= */
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary-color);
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .invoice-title h1 {
+            font-size: 36px;
+            font-weight: 300;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+
+        .box-content {
+            padding: 15px;
+            background-color: #f9fafb;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        /* =========================================================
+           ITEMS TABLE
+        ========================================================= */
+        .table-responsive {
+            overflow-x: auto; /* Makes table scrollable on mobile */
+            margin-bottom: 20px;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px; /* Ensure minimum width for readability */
+        }
+
+        .items-table th {
+            padding: 12px 10px;
+            font-size: 13px;
+            text-align: left;
+            color: var(--white);
+            background-color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            white-space: nowrap;
+        }
+
+        .items-table th:nth-child(n+2),
+        .items-table td:nth-child(n+2) {
+            text-align: right;
+        }
+
+        .items-table td {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .items-table input {
+            width: 100%;
+            padding: 5px;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            color: var(--text-color);
+            text-align: right;
+        }
+
+        .items-table td:first-child input {
+            text-align: left;
+        }
+
+        .items-table input:focus {
+            outline: none;
+            border-bottom: 1px solid var(--primary-color);
+        }
+
+        .items-table input[readonly] {
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+
+        .delete-btn:hover {
+            color: var(--danger-color);
+        }
+
+        /* =========================================================
+           TOTALS
+        ========================================================= */
+        .totals-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 30px;
+        }
+
+        .totals-box {
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .total-row:last-child {
+            margin-top: 10px;
+            padding-top: 15px;
+            font-size: 18px;
+            font-weight: 700;
+            border-top: 2px solid var(--text-color);
+            border-bottom: none;
+        }
+
+        .tax-select {
+            padding: 4px;
+            border-radius: 4px;
+            border: 1px solid #d1d5db;
+        }
+
+        .add-item-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* =========================================================
+           FOOTER
+        ========================================================= */
+        .invoice-footer {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .signature-line {
+            margin-top: 40px;
+            padding-top: 5px;
+            border-top: 1px solid var(--text-color);
+            font-weight: 600;
+        }
+
+        /* =========================================================
+           RESPONSIVE DESIGN
+        ========================================================= */
+        @media (max-width: 768px) {
+            /* Navigation Styles */
+            .mobile-menu-btn {
+                display: block;
+                z-index: 1001;
+            }
+
+            .nav-container {
+                position: fixed;
+                top: var(--nav-height);
+                left: 0;
+                width: 100%;
+                background: var(--white);
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+                
+                /* Hide by default */
+                transform: translateY(-150%);
+                opacity: 0;
+                transition: all 0.3s ease-in-out;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .nav-container.active {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                width: 100%;
+                gap: 15px;
+            }
+
+            .nav-btn {
+                font-size: 18px;
+                display: block;
+                padding: 10px 0;
+                border-bottom: 1px solid #f3f4f6;
+            }
+
+            .cta-btn {
+                width: 100%;
+                text-align: center;
+                margin-top: 10px;
+            }
+
+            /* Invoice Adjustments */
+            .invoice-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .invoice-title div {
+                justify-content: center !important;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .invoice-footer {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* =========================================================
+           PRINT STYLES (CRITICAL)
+        ========================================================= */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            nav,
+            .controls,
+            .add-item-container,
+            .delete-btn,
+            #home,
+            #about,
+            #service,
+            #pricing,
+            .mobile-menu-btn {
+                display: none !important;
+            }
+
+            #demo,
+            #demo * {
+                visibility: visible;
+            }
+
+            #demo {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+                padding: 0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .invoice-paper {
+                box-shadow: none !important;
+                border: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            input,
+            [contenteditable="true"] {
+                border: none !important;
+                background: transparent !important;
+                color: black !important;
+            }
+
+            .items-table th {
+                background-color: #cccccc !important;
+                color: black !important;
+                border: 1px solid black !important;
+            }
+
+            .items-table td {
+                border: 1px solid #ddd !important;
+            }
+
+            ::placeholder {
+                color: transparent;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="logo" onclick="navigate('home')">📄Billo</div>
+        
+        <!-- Mobile Hamburger Button -->
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+
+        <div class="nav-container" id="navContainer">
+            <div class="nav-links">
+                <a href="#" class="nav-btn active" onclick="navigate('home')">Home</a>
+                <a href="#" class="nav-btn" onclick="navigate('about')">About</a>
+                <a href="#" class="nav-btn" onclick="navigate('service')">Service</a>
+                <a href="#" class="nav-btn" onclick="navigate('pricing')">Pricing</a>
+                <a href="#" class="nav-btn" onclick="navigate('demo')">Demo</a>
+            </div>
+            <a href="#" class="cta-btn" onclick="navigate('demo')">Get Started</a>
+        </div>
+    </nav>
+
+    <!-- ================= HOME PAGE ================= -->
+    <section id="home" class="page-section active-section">
+        <div class="hero">
+            <h1>Simplified GST Billing for India</h1>
+            <p>Create professional, GST-compliant invoices in seconds. No software installation required. 100% Free and Secure.</p>
+            <a href="#" class="btn" onclick="navigate('demo')">Create Invoice Now</a>
+        </div>
+        <h2 style="text-align: center; margin-bottom: 20px;">Why Choose Billo?</h2>
+        <div class="features-grid">
+            <div class="feature-card"><div style="font-size:40px;margin-bottom:10px;">💰</div><h3>GST Ready</h3><p>Automatic CGST, SGST, and IGST calculations.</p></div>
+            <div class="feature-card"><div style="font-size:40px;margin-bottom:10px;">🚀</div><h3>Fast & Easy</h3><p>Click, type, and print your bill in under 2 minutes.</p></div>
+            <div class="feature-card"><div style="font-size:40px;margin-bottom:10px;">🔒</div><h3>100% Private</h3><p>Data stays in your browser. We store nothing.</p></div>
+        </div>
+    </section>
+
+    <!-- ================= ABOUT PAGE ================= -->
+    <section id="about" class="page-section">
+        <h1>About Billo</h1>
+        <div style="margin-top:20px; line-height:1.6;">
+            <p>Billo simplifies accounting for small business owners and freelancers in India. We understand the complexity of managing GST invoices, HSN codes, and tax calculations. Our tool removes the headache by automating the math.</p>
+        </div>
+    </section>
+
+    <!-- ================= SERVICE PAGE ================= -->
+    <section id="service" class="page-section">
+        <h1>Our Services</h1>
+        <div class="features-grid" style="margin-top:30px;">
+            <div class="feature-card"><h3>📄 Invoice Generation</h3><p>Create unlimited GST invoices.</p></div>
+            <div class="feature-card"><h3>📊 Dashboard</h3><p>Track revenue and tax liabilities.</p></div>
+            <div class="feature-card"><h3>📥 PDF Export</h3><p>Download high-quality PDFs instantly.</p></div>
+        </div>
+    </section>
+
+    <!-- ================= PRICING PAGE ================= -->
+    <section id="pricing" class="page-section">
+        <h1 style="text-align: center;">Pricing</h1>
+        <div class="pricing-grid" style="margin-top:30px;">
+            <div class="price-card"><h3>Starter</h3><div class="price">₹0<span>/mo</span></div><p>5 Invoices/mo</p><br><a href="#" class="btn btn-secondary" onclick="navigate('demo')">Try Free</a></div>
+            <div class="price-card" style="border:2px solid var(--primary-color);"><h3>Pro</h3><div class="price">₹299<span>/mo</span></div><p>Unlimited</p><br><a href="#" class="btn">Subscribe</a></div>
+        </div>
+    </section>
+
+    <!-- ================= DEMO (INVOICE TOOL) PAGE ================= -->
+    <section id="demo" class="page-section">
+        <div style="max-width: 100%;">
+            <div class="controls">
+                <div>
+                    <button class="btn" onclick="window.print()">🖨️ Print / Save PDF</button>
+                    <button class="btn btn-secondary" onclick="resetForm()">🔄 Reset</button>
+                </div>
+                <div style="font-size: 12px; color: #666;">* Click on any text to edit directly</div>
+            </div>
+
+            <div class="invoice-paper" id="invoice">
+                <!-- Header -->
+                <div class="invoice-header">
+                    <div class="business-info">
+                        <h2 contenteditable="true">Your Company Name</h2>
+                        <p contenteditable="true">123, Business Park, Cyber City</p>
+                        <p contenteditable="true">Gurugram, Haryana - 122002</p>
+                        <p contenteditable="true">GSTIN: 06ABCDE1234F1Z5</p>
+                        <p contenteditable="true">Phone: +91 98765 43210</p>
+                    </div>
+                    <div class="invoice-title">
+                        <h1>TAX INVOICE</h1>
+                        <div style="display:flex; justify-content:flex-end; margin-top:5px;">
+                            <span style="font-weight:600; margin-right:10px;">Invoice #:</span>
+                            <span contenteditable="true">INV-001</span>
+                        </div>
+                        <div style="display:flex; justify-content:flex-end; margin-top:5px;">
+                            <span style="font-weight:600; margin-right:10px;">Date:</span>
+                            <span contenteditable="true" id="currentDate"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Addresses -->
+                <div class="grid-2">
+                    <div>
+                        <div class="section-title">Bill To</div>
+                        <div class="box-content">
+                            <p contenteditable="true" style="font-weight: bold;">Client Name</p>
+                            <p contenteditable="true">Client Address Line 1</p>
+                            <p contenteditable="true">City, State - Zip</p>
+                            <p contenteditable="true">GSTIN: 07XYZAB5678G2Z9</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="section-title">Transport Details</div>
+                        <div class="box-content">
+                            <div style="display:flex; justify-content:flex-start; margin-bottom:5px;">
+                                <span style="font-weight:600; margin-right:10px;">Vehicle:</span>
+                                <span contenteditable="true">HR-26-AB-1234</span>
+                            </div>
+                            <div style="display:flex; justify-content:flex-start; margin-bottom:5px;">
+                                <span style="font-weight:600; margin-right:10px;">Date:</span>
+                                <span contenteditable="true" id="supplyDate"></span>
+                            </div>
+                            <div style="display:flex; justify-content:flex-start;">
+                                <span style="font-weight:600; margin-right:10px;">Place:</span>
+                                <span contenteditable="true">Haryana</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Items Table -->
+                <div class="table-responsive">
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40%;">Description</th>
+                                <th style="width: 15%;">HSN</th>
+                                <th style="width: 15%;">Qty</th>
+                                <th style="width: 15%;">Rate (₹)</th>
+                                <th style="width: 15%;">Amount (₹)</th>
+                                <th style="width: 5%;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="items-body">
+                            <!-- Items will be added here via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="add-item-container">
+                    <button class="btn btn-secondary" onclick="addItem()">+ Add Item</button>
+                </div>
+
+                <!-- Totals -->
+                <div class="totals-section">
+                    <div class="totals-box">
+                        <div class="total-row"><span>Taxable Amount:</span><span id="sub-total">₹0.00</span></div>
+                        <div class="total-row"><span>CGST (<span id="cgst-rate-display">9</span>%):</span><span id="cgst-amt">₹0.00</span></div>
+                        <div class="total-row"><span>SGST (<span id="sgst-rate-display">9</span>%):</span><span id="sgst-amt">₹0.00</span></div>
+                        <div class="total-row"><span>IGST (<span id="igst-rate-display">0</span>%):</span><span id="igst-amt">₹0.00</span></div>
+                        <div class="total-row"><span>Round Off:</span><span id="round-off">₹0.00</span></div>
+                        <div class="total-row"><span>Grand Total:</span><span id="grand-total">₹0.00</span></div>
+                        
+                        <div style="margin-top: 15px; font-size: 12px; text-align: right; border-top: 1px dashed #ccc; padding-top: 10px;">
+                            <label>Tax Mode: </label>
+                            <select id="tax-mode" class="tax-select" onchange="calculateTotals()">
+                                <option value="intra">Intra-State (CGST + SGST)</option>
+                                <option value="inter">Inter-State (IGST)</option>
+                            </select>
+                            &nbsp;
+                            <label>Tax %: </label>
+                            <select id="tax-rate" class="tax-select" onchange="calculateTotals()">
+                                <option value="0">0%</option>
+                                <option value="5">5%</option>
+                                <option value="12">12%</option>
+                                <option value="18" selected>18%</option>
+                                <option value="28">28%</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="invoice-footer">
+                    <div style="font-size: 12px; color: #6b7280;">
+                        <h4>Terms & Conditions</h4>
+                        <p contenteditable="true">1. Goods once sold will not be taken back.</p>
+                        <p contenteditable="true">2. Interest @18% p.a. will be charged on overdue payments.</p>
+                    </div>
+                    <div style="text-align: center; width: 150px;">
+                        <div class="signature-line">Authorized Signatory</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; border-top: 2px solid var(--primary-color); padding-top: 15px; font-size: 13px;">
+                    <strong>Bank Details:</strong>
+                    <span contenteditable="true">Bank Name: State Bank of India | A/C No: 1234567890 | IFSC: SBIN0001234</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // ================= NAVIGATION LOGIC =================
+        function navigate(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.page-section');
+            sections.forEach(section => {
+                section.classList.remove('active-section');
+            });
+
+            // Show target section
+            document.getElementById(sectionId).classList.add('active-section');
+
+            // Update Nav Active State
+            const navBtns = document.querySelectorAll('.nav-btn');
+            navBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.getAttribute('onclick').includes(sectionId)) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Close mobile menu if open
+            const navContainer = document.getElementById('navContainer');
+            navContainer.classList.remove('active');
+
+            // Scroll to top
+            window.scrollTo(0,0);
+        }
+
+        function toggleMobileMenu() {
+            const navContainer = document.getElementById('navContainer');
+            navContainer.classList.toggle('active');
+        }
+
+        // ================= INVOICE LOGIC =================
+        
+        // Initialize Dates
+        const today = new Date();
+        document.getElementById('currentDate').innerText = today.toLocaleDateString('en-IN');
+        document.getElementById('supplyDate').innerText = today.toLocaleDateString('en-IN');
+
+        // Add Initial Empty Row
+        addItem();
+
+        function addItem() {
+            const tbody = document.getElementById('items-body');
+            const row = document.createElement('tr');
+            
+            row.innerHTML = `
+                <td><input type="text" placeholder="Item Name" oninput="calculateTotals()"></td>
+                <td><input type="text" placeholder="HSN" style="width: 80px;"></td>
+                <td><input type="number" placeholder="0" min="1" value="1" oninput="calculateTotals()"></td>
+                <td><input type="number" placeholder="0.00" min="0" step="0.01" oninput="calculateTotals()"></td>
+                <td><input type="text" value="0.00" readonly></td>
+                <td style="text-align:center;"><button class="delete-btn" onclick="deleteRow(this)">×</button></td>
+            `;
+            
+            tbody.appendChild(row);
+        }
+
+        function deleteRow(btn) {
+            const row = btn.parentNode.parentNode;
+            // Ensure at least one row remains, or allow all to be deleted? 
+            // Usually better to delete, user can add more.
+            row.parentNode.removeChild(row);
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            const tbody = document.getElementById('items-body');
+            const rows = tbody.querySelectorAll('tr');
+            
+            let subtotal = 0;
+
+            // 1. Calculate Subtotal (Qty * Rate)
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                const qty = parseFloat(inputs[1].value) || 0;
+                const rate = parseFloat(inputs[2].value) || 0;
+                const amount = qty * rate;
+                
+                inputs[3].value = amount.toFixed(2);
+                subtotal += amount;
+            });
+
+            // 2. Get Tax Settings
+            const taxMode = document.getElementById('tax-mode').value; // 'intra' or 'inter'
+            const taxRatePercent = parseFloat(document.getElementById('tax-rate').value);
+
+            let cgstAmt = 0;
+            let sgstAmt = 0;
+            let igstAmt = 0;
+
+            // 3. Calculate Tax
+            if (taxMode === 'intra') {
+                // Split tax (e.g., 18% -> 9% CGST + 9% SGST)
+                const splitRate = taxRatePercent / 2;
+                cgstAmt = subtotal * (splitRate / 100);
+                sgstAmt = subtotal * (splitRate / 100);
+                
+                document.getElementById('cgst-rate-display').innerText = splitRate;
+                document.getElementById('sgst-rate-display').innerText = splitRate;
+                document.getElementById('igst-rate-display').innerText = 0;
+            } else {
+                // IGST (e.g., 18% -> 18% IGST)
+                igstAmt = subtotal * (taxRatePercent / 100);
+                
+                document.getElementById('cgst-rate-display').innerText = 0;
+                document.getElementById('sgst-rate-display').innerText = 0;
+                document.getElementById('igst-rate-display').innerText = taxRatePercent;
+            }
+
+            const totalTax = cgstAmt + sgstAmt + igstAmt;
+            
+            // 4. Round Off (Simple rounding to nearest integer)
+            const rawTotal = subtotal + totalTax;
+            const roundedTotal = Math.round(rawTotal);
+            const roundOff = roundedTotal - rawTotal;
+
+            // 5. Update DOM
+            document.getElementById('sub-total').innerText = '₹' + subtotal.toFixed(2);
+            document.getElementById('cgst-amt').innerText = '₹' + cgstAmt.toFixed(2);
+            document.getElementById('sgst-amt').innerText = '₹' + sgstAmt.toFixed(2);
+            document.getElementById('igst-amt').innerText = '₹' + igstAmt.toFixed(2);
+            document.getElementById('round-off').innerText = '₹' + roundOff.toFixed(2);
+            document.getElementById('grand-total').innerText = '₹' + roundedTotal.toFixed(2);
+        }
+
+        function resetForm() {
+            if(confirm("Are you sure you want to reset the invoice? All data will be lost.")) {
+                const tbody = document.getElementById('items-body');
+                tbody.innerHTML = '';
+                addItem();
+                
+                // Reset text fields manually if needed, or just reload
+                // For a smoother app feel, we just clear rows.
+                calculateTotals();
+            }
+        }
+    </script>
+</body>
+</html>
